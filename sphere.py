@@ -9,6 +9,7 @@ import Shapes
 spheres = []
 window_width = 1000
 window_height = 1000
+lookattest = 0
 
 def main():
     glutInit(sys.argv)
@@ -32,33 +33,21 @@ def main():
     glMatrixMode(GL_PROJECTION)
     gluPerspective(90.,1.,1.,100.)
     glMatrixMode(GL_MODELVIEW)
-    gluLookAt(0,0,20,
-              0,0,0,
-              0,1,0)
     glPushMatrix()
     glutMainLoop()
     return
 
 # This is run everytime the frame is redrawn
 def display():
+    gluLookAt(0, 0, 20,
+              0, 0, 0,
+              0, 1, 0)
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
     glPushMatrix()
-    spheres = []
-    for x in range(25):
-        sphere = random_sphere()
-        spheres.append(sphere)
-
     for sphere in spheres:
         draw_sphere(sphere)
-
-    spheres[0].translate((0.001,0,0))
-    spheres[1].translate((0,0,-0.0002))
-    spheres[2].translate((0,0.001,-0.0002))
     glPopMatrix()
     glutSwapBuffers()
-    save_image()
-
-
 
 def key_pressed(key, x, y):
     if key == b's':
@@ -81,7 +70,7 @@ def random_sphere():
     x = random.randint(0, 10) * (random.random() * 2 - 1)
     y = random.randint(0, 10) * (random.random() * 2 - 1)
     z = random.randint(0, 10) * (random.random() * 2 - 1)
-    sphere = Shapes.Sphere(1, 20, 20, (x, y, z), (r, g, b))
+    sphere = Shapes.Sphere(1, 20, 20, (x, y, z), (r, g, b),(0, 0, 0))
     return sphere
 
 
@@ -99,5 +88,9 @@ def render_image_to_file(filename, data, file_format="PNG"):
     print('Saved image to' + (os.path.abspath(filename)))
     return image
 
+
+for x in range(25):
+    sphere = random_sphere()
+    spheres.append(sphere)
 
 main()
