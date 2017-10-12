@@ -55,3 +55,53 @@ class Sphere(Object):
     def get_stacks(self):
         return self.stacks
 
+
+class EdgeObject(Object):
+
+    def __init__(self, coordinates, colour, direction_matrix, verticies, edges):
+        Object.__init__(self, coordinates, colour, direction_matrix)
+        self.verticies = verticies
+        self.edges = edges
+
+    def get_verticies(self):
+        return self.verticies
+
+    def set_verticies(self, verticies):
+        self.verticies = verticies
+
+    def get_edges(self):
+        return self.edges
+
+    def set_edges(self, edges):
+        self.edges = edges
+
+
+class Cube(EdgeObject):
+    verticies = (
+        (1, -1, -1),
+        (1, 1, -1),
+        (-1, 1, -1),
+        (-1, -1, -1),
+        (1, -1, 1),
+        (1, 1, 1),
+        (-1, -1, 1),
+        (-1, 1, 1)
+    )
+
+    edges = (
+        (0, 1),
+        (0, 3),
+        (0, 4),
+        (2, 1),
+        (2, 3),
+        (2, 7),
+        (6, 3),
+        (6, 4),
+        (6, 7),
+        (5, 1),
+        (5, 4),
+        (5, 7)
+    )
+
+    def __init__(self, coordinates, colour, direction_matrix):
+        EdgeObject.__init__(self, coordinates, colour, direction_matrix, self.verticies, self.edges)

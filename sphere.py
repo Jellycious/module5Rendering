@@ -9,7 +9,8 @@ import Shapes
 spheres = []
 window_width = 1000
 window_height = 1000
-lookattest = 0
+pause = False
+clear_screen = True
 
 def main():
     glutInit(sys.argv)
@@ -32,26 +33,67 @@ def main():
     glutDisplayFunc(display)
     glMatrixMode(GL_PROJECTION)
     gluPerspective(90.,1.,1.,100.)
+    gluLookAt(0, 0, 20,
+              0, 0, 0,
+              0, 1, 0)
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glutMainLoop()
     return
 
 # This is run everytime the frame is redrawn
 def display():
-    gluLookAt(0, 0, 20,
-              0, 0, 0,
-              0, 1, 0)
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+    global clear_screen
+    global pause
+    if clear_screen:
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glPushMatrix()
+    # draw stuff here
     for sphere in spheres:
         draw_sphere(sphere)
+    # ----------------
     glPopMatrix()
+    if not pause:
+        glRotate(0.05, 0, 1, 0)
     glutSwapBuffers()
+    glutPostRedisplay()
+
 
 def key_pressed(key, x, y):
-    if key == b's':
+    global spheres
+    if key == b'o':
         save_image()
+    if key == b'n':
+        spheres = []
+        for x in range(25):
+            sphere = random_sphere()
+            spheres.append(sphere)
+    if key == b'+':
+        sphere = random_sphere()
+        spheres.append(sphere)
+
+    if key == b'-':
+        if len(spheres) > 0:
+            spheres.pop(len(spheres) - 1)
+
+    if key == b'c':
+        global clear_screen
+        if clear_screen:
+            clear_screen = False
+        else:
+            clear_screen = True
+
+    if key == b'p':
+        global pause
+        if pause:
+            pause = False
+        else:
+            pause = True
+    print(key)
+
+    if key == b'w':
+        pass
 
 
 def draw_sphere(sphere):
@@ -62,6 +104,17 @@ def draw_sphere(sphere):
     glutSolidSphere(sphere.get_radius(), sphere.get_slices(), sphere.get_stacks())
     glTranslatef(-coordinates[0], -coordinates[1], -coordinates[2])
 
+
+def draw_edge_object(edge_object):
+    colour = edge_object.get_colour()
+    edges = edge_object.get_edges()
+    verticies = edge_object.get_verticies()
+    glBegin(GL_LINES)
+    for index, edge in enumerate(edges):
+        glColor3f(colour[0], colour[1], colour[2])
+        for vertex in edge:
+            glVertex3fv(verticies[vertex])
+    glEnd()
 
 def random_sphere():
     r = random.random()
@@ -87,10 +140,5 @@ def render_image_to_file(filename, data, file_format="PNG"):
     image.save(filename, file_format)
     print('Saved image to' + (os.path.abspath(filename)))
     return image
-
-
-for x in range(25):
-    sphere = random_sphere()
-    spheres.append(sphere)
 
 main()
