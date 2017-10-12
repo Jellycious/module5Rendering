@@ -3,6 +3,7 @@ from OpenGL.GLU import *
 from OpenGL.GL import *
 import random
 import sys
+import time
 
 import Shapes
 
@@ -11,6 +12,8 @@ window_width = 1000
 window_height = 1000
 pause = False
 clear_screen = True
+running = True
+fps = 0
 
 def main():
     glutInit(sys.argv)
@@ -23,8 +26,8 @@ def main():
     glEnable(GL_CULL_FACE)
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
-    lightZeroPosition = [10.,4.,10.,1.]
-    lightZeroColor = [0.8,1.0,0.8,1.0] #green tinged
+    lightZeroPosition = [0.,4.,20.,1.]
+    lightZeroColor = [0.8,1.0,0.8,0.5] #green tinged
     glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
     glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1)
@@ -42,23 +45,55 @@ def main():
     glutMainLoop()
     return
 
+
 # This is run everytime the frame is redrawn
+old_time = time.time()
+
+
 def display():
-    global clear_screen
-    global pause
-    if clear_screen:
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glPushMatrix()
-    # draw stuff here
+    global old_time
+    if running:
+        global clear_screen
+        global pause
+        if clear_screen:
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glPushMatrix()
+        # draw stuff here
+        render()
+        # ----------------
+        glPopMatrix()
+        new_time = time.time()
+        # 120 up/s
+        if (new_time - old_time) > (1/120):
+            old_time = new_time
+            if not pause:
+                update()
+        glutSwapBuffers()
+        glutPostRedisplay()
+    else:
+        exit(0)
+
+
+frame_count = 0
+frame_time = time.time()
+
+def render():
+    global fps
+    global frame_count
+    global frame_time
+    frame_count += 1
     for sphere in spheres:
         draw_sphere(sphere)
-    # ----------------
-    glPopMatrix()
-    if not pause:
-        glRotate(0.05, 0, 1, 0)
-    glutSwapBuffers()
-    glutPostRedisplay()
+    # One second has passed
+    curr_time = time.time()
+    if curr_time - frame_time >= 1:
+        frame_count = 0
+        frame_time = curr_time;
 
+
+
+def update():
+    glRotate(1, 0, 1, 0)
 
 def key_pressed(key, x, y):
     global spheres
@@ -90,10 +125,10 @@ def key_pressed(key, x, y):
             pause = False
         else:
             pause = True
-    print(key)
 
-    if key == b'w':
-        pass
+    if key == b'\x1b':
+        global running
+        running = False
 
 
 def draw_sphere(sphere):
