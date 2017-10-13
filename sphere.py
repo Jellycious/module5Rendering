@@ -14,6 +14,9 @@ pause = False
 clear_screen = True
 running = True
 fps = 0
+lightZeroPosition = [0., 4., 10, 1.]
+lightZeroColor = [0.8, 1.0, 0.8, ]  # green tinged
+
 
 def main():
     glutInit(sys.argv)
@@ -26,8 +29,6 @@ def main():
     glEnable(GL_CULL_FACE)
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
-    lightZeroPosition = [0.,4.,20.,1.]
-    lightZeroColor = [0.8,1.0,0.8,0.5] #green tinged
     glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
     glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1)
@@ -77,6 +78,7 @@ def display():
 frame_count = 0
 frame_time = time.time()
 
+
 def render():
     global fps
     global frame_count
@@ -91,9 +93,18 @@ def render():
         frame_time = curr_time;
 
 
-
 def update():
     glRotate(1, 0, 1, 0)
+
+
+def move_object(to_move):
+    coordinates = to_move.get_coordinates()
+    direction = to_move.get_direction_matrix()
+    new_coordinates = []
+    for i in range(len(coordinates)):
+        new_coordinates.append(coordinates[i] + direction[i])
+    to_move.set_coordinates(new_coordinates)
+
 
 def key_pressed(key, x, y):
     global spheres
@@ -144,12 +155,13 @@ def draw_edge_object(edge_object):
     colour = edge_object.get_colour()
     edges = edge_object.get_edges()
     verticies = edge_object.get_verticies()
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, colour)
     glBegin(GL_LINES)
     for index, edge in enumerate(edges):
-        glColor3f(colour[0], colour[1], colour[2])
         for vertex in edge:
             glVertex3fv(verticies[vertex])
     glEnd()
+
 
 def random_sphere():
     r = random.random()
@@ -175,5 +187,6 @@ def render_image_to_file(filename, data, file_format="PNG"):
     image.save(filename, file_format)
     print('Saved image to' + (os.path.abspath(filename)))
     return image
+
 
 main()
